@@ -11,5 +11,5 @@ Projeto que estou aprendendo sobre APIs, o mesmo é desenvolvido por partes com 
 3. Persistindo com Entity Framework Core
 	- Oque foi aprendido nesta etapa foi sobre oque são ORMs, como facilitam a nossa vida, prós e contras, configurando DbContext e DbSet's. Aprendi um pouco da ORM Dapper como implementar e refatorar o código a partir de uma implementação do EF, vantagens do Dapper e desvantagens, onde me foi ensinado que no geral Dapper é mais perfomático que EF, mas sei bem que cada caso é um caso separado e nem sempre isso pode ser a completa verdade.
 
-4. CQRS + MediatR
-	- 
+4. CQRS + Mediator + MediatR
+	- Nesta parte foi aprendido o padrão CQRS e o padrão Mediator. O CQRS é um padrão de arquitetura que separa lógicamente as reponsabilidades de entrada e saida de dados, oque ao meu ver melhora a leitura do projeto. O padrão CQRS neste projeto foi utilizado juntamente com o padrão Mediator + a bibliotéca MediatR.
