@@ -1,31 +1,33 @@
-﻿using DevFreela.Application.ViewModels;
-using DevFreela.Core.DTOs;
-using DevFreela.Infrastructure.Persistence;
-using MediatR;
+﻿using DevFreela.Core.Entities;
+using DevFreela.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace DevFreela.Application.Queries.GetProjectById
+namespace DevFreela.Infrastructure.Persistence.Repositories
 {
-    public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, Pro,
-        jectDTO>
+    public class ProjectRepository : IProjectRepository
     {
         private readonly DevFreelaDbContext _dbContext;
-        public GetProjectByIdQueryHandler(DevFreelaDbContext dbContext)
+        private readonly string _connectionString;
+        public ProjectRepository(DevFreelaDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _connectionString = configuration.GetConnectionString("DevFreelaCs");
         }
-        public async Task<ProjectDetailsViewModel> Handle(GetProjectByIdQuery request, CancellationToken cancellationToken)
+
+        public async Task<List<Project>> GetAll()
+        {
+            return await _dbContext.Projects.ToListAsync();
+        }
+
+        public async Task<Project> GetById(int id)
         {
             var project = await _dbContext.Projects
                 .Include(p => p.Client)
                 .Include(p => p.Freelancer)
-                .SingleOrDefaultAsync(p => p.Id == request.Id);
+                .SingleOrDefaultAsync(p => p.Id == id);
 
             if (project == null) return null;
 
