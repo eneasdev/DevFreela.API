@@ -1,4 +1,5 @@
-﻿using DevFreela.Core.Entities;
+﻿using DevFreela.Core.DTOs;
+using DevFreela.Core.Entities;
 using DevFreela.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +23,7 @@ namespace DevFreela.Infrastructure.Persistence.Repositories
             return await _dbContext.Projects.ToListAsync();
         }
 
-        public async Task<Project> GetById(int id)
+        public async Task<ProjectDTO> GetById(int id)
         {
             var project = await _dbContext.Projects
                 .Include(p => p.Client)
@@ -31,7 +32,7 @@ namespace DevFreela.Infrastructure.Persistence.Repositories
 
             if (project == null) return null;
 
-            var projectDetailsViewModel = new ProjectDetailsViewModel(
+            var projectDTO = new ProjectDTO(
                 project.Id,
                 project.Title,
                 project.Description,
@@ -42,7 +43,7 @@ namespace DevFreela.Infrastructure.Persistence.Repositories
                 project.Freelancer.FullName
                 );
 
-            return projectDetailsViewModel;
+            return projectDTO;
         }
     }
 }

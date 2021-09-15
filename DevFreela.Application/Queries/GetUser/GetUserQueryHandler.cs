@@ -1,41 +1,22 @@
-﻿using DevFreela.Application.ViewModels;
-using DevFreela.Infrastructure.Persistence;
+﻿using DevFreela.Core.DTOs;
+using DevFreela.Core.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace DevFreela.Application.Queries.GetUser
 {
-    public class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserViewModel>
+    public class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDTO>
     {
-        private readonly DevFreelaDbContext _dbContext;
-        public GetUserQueryHandler(DevFreelaDbContext dbContext)
+        private readonly IUserRepository _userRepository;
+        public GetUserQueryHandler(IUserRepository userRepository)
         {
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
-        public async Task<UserViewModel> Handle(GetUserQuery request, CancellationToken cancellationToken)
+        public async Task<UserDTO> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == request.Id);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            var userViewModel = new UserViewModel(
-                user.FullName,
-                user.Email,
-                user.BirthDate,
-                user.CreatedAt
-                );
-
-            return userViewModel;
+            return await _userRepository.GetById(request.Id);
         }
     }
 }
