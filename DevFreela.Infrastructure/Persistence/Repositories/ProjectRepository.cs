@@ -1,6 +1,6 @@
-﻿using DevFreela.Core.DTOs;
+﻿using Dapper;
 using DevFreela.Core.Entities;
-using DevFreela.Core.Repositories;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DevFreela.Infrastructure.Persistence.Repositories
 {
-    public class ProjectRepository : IProjectRepository
+    public class ProjectRepository : Core.Repositories.IProjectRepository
     {
         private readonly DevFreelaDbContext _dbContext;
         private readonly string _connectionString;
@@ -18,32 +18,49 @@ namespace DevFreela.Infrastructure.Persistence.Repositories
             _connectionString = configuration.GetConnectionString("DevFreelaCs");
         }
 
-        public async Task<List<Project>> GetAll()
+        public async Task<List<Project>> GetAllAsync()
         {
             return await _dbContext.Projects.ToListAsync();
         }
 
-        public async Task<ProjectDTO> GetById(int id)
+        public async Task<Project> GetByIdAsync(int id)
         {
-            var project = await _dbContext.Projects
+            return await _dbContext.Projects
                 .Include(p => p.Client)
                 .Include(p => p.Freelancer)
                 .SingleOrDefaultAsync(p => p.Id == id);
-
-            if (project == null) return null;
-
-            var projectDTO = new ProjectDTO(
-                project.Id,
-                project.Title,
-                project.Description,
-                project.TotalCost,
-                project.StartedAt,
-                project.FinishedAt,
-                project.Client.FullName,
-                project.Freelancer.FullName
-                );
-
-            return projectDTO;
         }
+
+        public async Task AddAsync(Project project)
+        {
+            await _dbContext.Projects.AddAsync(project);
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task StartAsync(Project project)
+        {
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                sqlConnection.Open();
+
+                var script = "UPDATE Projects SET Status = @status, StartedAt = @startedat WHERE Id = @id";
+
+                await sqlConnection.ExecuteAsync(script, new { status = project.Status, startedat = project.StartedAt, project.Id });
+            }
+        }
+        public async Task AddCommentAsync(ProjectComment projectComment)
+        {
+            await _dbContext.ProjectComments.AddAsync(projectComment);
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+
+        
     }
 }
