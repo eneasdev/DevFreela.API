@@ -27,10 +27,7 @@ namespace DevFreela.API.Controllers
 
             var user = await _mediator.Send(query);
 
-            if(user == null)
-            {
-                return NotFound();
-            }
+            if (user == null) return NotFound();
 
             return Ok(user);
         }
@@ -40,6 +37,7 @@ namespace DevFreela.API.Controllers
         public async Task<IActionResult> Post([FromBody] CreateUserCommand command)
         {
             var id = await _mediator.Send(command);
+
             return CreatedAtAction(nameof(GetById), new { id = id }, command);
         }
 
